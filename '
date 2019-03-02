@@ -1,0 +1,21 @@
+enum ExprC {
+    NumC { n : u32 },
+    BoolC { b : bool },
+    StringC { s : String },
+    IfC { i : Box<ExprC>, t : Box<ExprC>, e : Box<ExprC> },
+    IdC { i : String },
+    LamC { params : Vec<String>, body : Box<ExprC> },
+    AppC { funDef : Box<ExprC>, params: Vec<Box<ExprC>> }
+}
+
+fn interp(e: ExprC) -> ExprC {
+    e
+}
+
+fn main() {
+    let test_num = ExprC::BoolC { b: false };
+    let test_string = ExprC::StringC { s: String::from("just a test") };
+    let test_bool = ExprC::BoolC { b: false };
+    let test_if = ExprC::IfC { i: Box::new(test_bool), t: Box::new(test_string), e: Box::new(test_num) };
+}
+
