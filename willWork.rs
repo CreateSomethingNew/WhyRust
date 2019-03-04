@@ -12,8 +12,9 @@ enum ExprC {
     AppC { fun_def : Box<ExprC>, args: Vec<Box<ExprC>> }
 }
 
-struct Env<'a> {
-	env : &'a mut HashMap<String, ValueV>
+#[derive(Clone)]
+struct Env {
+	env : HashMap<String, ValueV>
 }
 
 #[derive(Clone)]
@@ -46,8 +47,9 @@ fn interp(e: ExprC, env: &mut HashMap<String, ValueV>) -> ValueV {
         				panic!("Arg lengths must be 2 for primop")
         			}
         			p(interp_args[0].clone(), interp_args[1].clone())		
-        		}
-        		ValueV::CloV { params, body, env }=> ValueV::NumV { n : 4 } 
+        		},
+        		ValueV::CloV { params, body, env } => ValueV::NumV { n : 4 },
+                _ => panic!("not caught")
         	}
         }
         _ => ValueV::NumV { n : 4 }
@@ -67,7 +69,7 @@ fn serialize(v: ValueV) -> String {
         ValueV::NumV { n } => n.to_string(),
         ValueV::BoolV { b } => b.to_string(),
         ValueV::StringV { s } => s,
-        ValueV::CloV { params, body } => String::from("#<procedure>"),
+        ValueV::CloV { params, body, env } => String::from("#<procedure>"),
         ValueV::PrimV { p: _ } => String::from("#<primop>")
     }
 }
