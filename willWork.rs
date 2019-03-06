@@ -36,6 +36,7 @@ fn interp(e: ExprC, env: &mut HashMap<String, ValueV>) -> ValueV {
         		None => panic!("Unbound identifier")
         	}
         }
+        ExprC::LamC { params, body } => ValueV::CloV { params : params, body: body, env: Env {env: (*env).clone()} },
         ExprC::BoolC { b } => ValueV::BoolV { b : b },
         ExprC::StringC { s } => ValueV::StringV { s : s },
         ExprC::IfC { i, t, e } => if_helper(i, t, e, env),
@@ -48,25 +49,28 @@ fn interp(e: ExprC, env: &mut HashMap<String, ValueV>) -> ValueV {
         				panic!("Arg lengths must be 2 for primop")
         			}
 //        			p(interp_args[0].clone(), interp_args[1].clone())
-                    let argVal: Vec<u32> = prim_helper_num(interp_args[0], interp_args[1]);
-                    match s {
-                        "+".to_string() => ValueV::NumV{ n: (argVal[0] + argVal[1]) }, //fix this to call helper
-                        "-".to_string() => ValueV::NumV{ n: (argVal[0] - argVal[1]) },
-                        "*".to_string() => ValueV::NumV{ n: (argVal[0] * argVal[1]) },
-                        "<=".to_string() => ValueV::BoolV { b: (argVal[0] <= argVal[1]) },
-                        "equal?".to_string() => {   if argVal.length() != 2 {
+                    let temp = &interp_args[0];
+                    let temp2 = &interp_args[1];
+                    let argVal: Vec<u32> = prim_helper_num(temp.clone(), temp2.clone());
+                    match s.as_ref() {
+                        "+" => ValueV::NumV{ n: (argVal[0] + argVal[1]) }, //fix this to call helper
+                        "-" => ValueV::NumV{ n: (argVal[0] - argVal[1]) },
+                        "*" => ValueV::NumV{ n: (argVal[0] * argVal[1]) },
+                        "<=" => ValueV::BoolV { b: (argVal[0] <= argVal[1]) },
+                        "equal?" => {   if argVal.len() != 2 {
                                                         ValueV::BoolV{ b: false }
                                                     } else {
-                                                        ValueV::BoolV { b : (argVal[0] == argVal[1]) },
+                                                        ValueV::BoolV { b : (argVal[0] == argVal[1]) }
                                                     }
                                                 },
-                        "/".to_string() => { 
+                        "/" => { 
                                             if argVal[1] == 0 {
                                                 panic!("Division by zero")
                                             } else {
                                                 ValueV::NumV {n : (argVal[0] / argVal[1])}
                                             }
                         },   
+                        _ => panic!("not caught!")
                 }
             },
         	ValueV::CloV { params, body, env } => ValueV::NumV { n : 4 },
@@ -82,9 +86,10 @@ fn prim_helper_num(arg1: ValueV , arg2: ValueV) -> Vec<u32> {
     let mut v: Vec<u32> = Vec::new();
     match arg1 {
         ValueV::NumV { n } => {
+            v.push(n);
             match arg2 {
-                ValueV::NumV { n } => { v.push(arg1.n);
-                                        v.push(arg2.n);
+                ValueV::NumV { n } => { 
+                                        v.push(n);
                                         v
                                         },
                 _ => panic!("second arguement is not a NumV") 
@@ -95,23 +100,23 @@ fn prim_helper_num(arg1: ValueV , arg2: ValueV) -> Vec<u32> {
      }   
 }
 
-fn prim_helper_bool(arg1: ValueV, arg2: ValueV) -> Vec<bool> {
-    let mut v: Vec<bool> = Vec::new();
-    match arg1 {
-        ValueV::BoolV { b } => {
-            match arg2 {
-                ValueV::BoolV { b } => { v.push(arg1.b);
-                                         v.push(arg2.b);
-                                         v
-                                         },
-                _ => { v.push(false);
-                       v
-                     },                            
-            }
-        },
-        _ => panic!("invalid arguements")
-    }
-}
+// fn prim_helper_bool(arg1: ValueV, arg2: ValueV) -> Vec<bool> {
+//     let mut v: Vec<bool> = Vec::new();
+//     match arg1 {
+//         ValueV::BoolV { b } => {
+//             match arg2 {
+//                 ValueV::BoolV { b } => { v.push(arg1.b);
+//                                          v.push(arg2.b);
+//                                          v
+//                                          },
+//                 _ => { v.push(false);
+//                        v
+//                      },                            
+//             }
+//         },
+//         _ => panic!("invalid arguements")
+//     }
+// }
 
 
 fn if_helper(i: Box<ExprC>, t: Box<ExprC>, e: Box<ExprC>, 
