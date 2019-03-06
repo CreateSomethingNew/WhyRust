@@ -184,8 +184,11 @@ fn main() {
     assert_eq!("3", serialize(interp(test_if_2, &mut(make_top_map()))));
     assert_eq!("true", serialize(interp(idc_true, &mut(make_top_map()))));
 
-    interp(ExprC::AppC { fun_def : Box::new(plus_func), args : vec![Box::new(plus_arg1), Box::new(plus_arg2)]},
-        &mut(make_top_map()));
+    assert_eq!("3", serialize(interp(ExprC::AppC { fun_def : Box::new(plus_func), args : vec![Box::new(plus_arg1), Box::new(plus_arg2)]},
+        &mut(make_top_map()))));
+
+    assert_eq!(serialize(interp(ExprC::AppC {fun_def : Box::new(ExprC::IdC{ i: "*".to_string() }), args : vec![Box::new(ExprC::NumC { n: 4 }) , Box::new(ExprC::NumC { n : 6 })]},
+    &mut(make_top_map()))), "24");
   //    interp(ExprC::AppC { fun_def : Box::new(bool_true_2), args : vec![Box::new(bool_true_3)]}, 
   //  	&mut(make_top_map()));
     /*
